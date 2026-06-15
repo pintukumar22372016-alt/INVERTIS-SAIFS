@@ -1,0 +1,93 @@
+{% include 'navbar.html' %}
+
+<div class="container mt-5">
+
+    <h2 class="mb-4"> Analytics Dashboard</h2>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+
+                    <h3>{{ total_students }}</h3>
+
+                    <p>Total Students</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+
+                    <h3>{{ total_teachers }}</h3>
+
+                    <p>Total Teachers</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+
+                    <h3>{{ total_feedback }}</h3>
+                    <p>Total Feedback</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow">
+                <div class="card-body text-center">
+
+                    <h3>{{ total_complaints }}</h3>
+                    <p>Total Complaints</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <canvas id="feedbackChart"></canvas>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('feedbackChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [
+            'Feedback',
+            'Complaints',
+            'Notes',
+            'Doubts'
+        ],
+        datasets: [{
+            label: 'System Analytics',
+            data: [40, 15, 30, 12]
+        }]
+    }
+});
+
+</script>
+
+{% include 'footer.html' %}

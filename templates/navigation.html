@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Center</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <div class="container mt-5">
+    <div class="text-center mb-5">
+            <h1> Invertis SAIFS Navigation Center</h1>
+            <p class="text-muted"> Access all modules from one place</p>
+    </div>
+
+    <div class="row g-4">
+
+    <div class="col-md-4">
+    <div class="card shadow h-100">
+
+    <div class="card-body text-center">
+
+        <h4>Feedback System</h4>
+
+        <p>Submit and manage academic feedback. </p>
+
+        <a href="/feedback"class="btn btn-primary">Open Module</a>
+    </div>
+
+    </div>
+    </div>
+
+    <div class="col-md-4">
+    <div class="card shadow h-100">
+
+    <div class="card-body text-center">
+
+    <h4>Complaint Portal</h4>
+
+    <p>Register and track complaints.</p>
+
+    <a href="/complaint"class="btn btn-danger">Open Module</a>
+
+    </div>
+
+    </div>
+    </div>
+
+    <div class="col-md-4">
+    <div class="card shadow h-100">
+    <div class="card-body text-center">
+
+        <h4>Study Notes</h4>
+        <p>Upload and download notes.</p>
+        
+        <a href="/notes"class="btn btn-success">Open Module</a>
+
+        </div>
+
+        </div>
+        </div>
+
+        <div class="col-md-4">
+        <div class="card shadow h-100">
+
+        <div class="card-body text-center">
+
+                        <h4>Doubt Portal</h4>
+
+                        <p>Ask questions and receive answers.</p>
+
+        <a href="/doubts"class="btn btn-warning">Open Module</a>
+
+        </div>
+        </div>
+        </div>
+
+
+            <div class="col-md-4">
+                <div class="card shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h4>Analytics</h4>
+
+                        <p>
+                            View system reports and statistics.
+                        </p>
+
+                        <a href="/analytics"
+                           class="btn btn-info">
+
+                            Open Module
+
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Events -->
+
+            <div class="col-md-4">
+                <div class="card shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h4>College Events</h4>
+
+                        <p>
+                            View upcoming events and activities.
+                        </p>
+
+                        <a href="/events"
+                           class="btn btn-secondary">
+
+                            Open Module
+
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Common Issues -->
+
+            <div class="col-md-4">
+                <div class="card shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h4>Common Issues</h4>
+
+                        <p>
+                            Frequently reported problems.
+                        </p>
+
+                        <a href="/common-issues"
+                           class="btn btn-dark">
+
+                            Open Module
+
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Student Dashboard -->
+
+            <div class="col-md-4">
+                <div class="card shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h4>Student Dashboard</h4>
+
+                        <p>
+                            Student activity center.
+                        </p>
+
+                        <a href="/student/dashboard"
+                           class="btn btn-primary">
+
+                            Open Dashboard
+
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+
+            <div class="col-md-4">
+                <div class="card shadow h-100">
+
+                    <div class="card-body text-center">
+
+                        <h4>Admin Dashboard</h4>
+
+                        <p>
+                            Manage entire system.
+                        </p>
+
+                        <a href="/admin/dashboard"
+                           class="btn btn-danger">
+
+                            Open Dashboard
+
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

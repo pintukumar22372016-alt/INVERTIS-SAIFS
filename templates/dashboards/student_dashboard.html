@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard — INVERTIS SAIFS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="/">Home</a> <i class="bi bi-chevron-right" style="font-size:0.65rem"></i> Dashboard</div>
+  <h1 class="page-title">Student Dashboard</h1>
+  <p class="page-subtitle">Welcome back, {{ current_user_name }}! 👋 Here's your academic overview.</p>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3 fade-in-up-1">
+    <div class="glass-card stat-card primary">
+      <div class="stat-icon primary"><i class="bi bi-star-fill"></i></div>
+      <div class="stat-value" data-target="{{ feedback_count }}">{{ feedback_count }}</div>
+      <div class="stat-label">Feedback Submitted</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3 fade-in-up-2">
+    <div class="glass-card stat-card warning">
+      <div class="stat-icon warning"><i class="bi bi-exclamation-circle-fill"></i></div>
+      <div class="stat-value" data-target="{{ complaint_count }}">{{ complaint_count }}</div>
+      <div class="stat-label">Complaints Filed</div>
+      {% if pending_complaints > 0 %}
+      <div class="stat-trend"><i class="bi bi-clock"></i> {{ pending_complaints }} pending</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-6 col-lg-3 fade-in-up-3">
+    <div class="glass-card stat-card success">
+      <div class="stat-icon success"><i class="bi bi-file-earmark-text-fill"></i></div>
+      <div class="stat-value" data-target="{{ notes_count }}">{{ notes_count }}</div>
+      <div class="stat-label">Notes Available</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3 fade-in-up-4">
+    <div class="glass-card stat-card info">
+      <div class="stat-icon info"><i class="bi bi-calendar-check-fill"></i></div>
+      <div class="stat-value" data-target="{{ attendance_pct }}">{{ attendance_pct }}</div>
+      <div class="stat-label">Attendance %</div>
+      <div class="stat-trend {% if attendance_pct >= 75 %}up{% else %}down{% endif %}">
+        <i class="bi bi-{% if attendance_pct >= 75 %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
+        {{ attendance_present }}/{{ attendance_total }} classes
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Quick Actions -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-lightning-fill text-warning me-2"></i>Quick Actions</h5>
+      <div class="row g-2">
+        <div class="col-6">
+          <a href="/feedback" class="quick-action text-decoration-none">
+            <div class="quick-action-icon" style="background:rgba(99,102,241,0.15)"><i class="bi bi-star" style="color:#6366f1"></i></div>
+            <span style="font-size:0.78rem;color:var(--text);font-weight:500">Submit Feedback</span>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="/complaint" class="quick-action text-decoration-none">
+            <div class="quick-action-icon" style="background:rgba(245,158,11,0.15)"><i class="bi bi-exclamation-triangle" style="color:#f59e0b"></i></div>
+            <span style="font-size:0.78rem;color:var(--text);font-weight:500">File Complaint</span>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="/notes" class="quick-action text-decoration-none">
+            <div class="quick-action-icon" style="background:rgba(16,185,129,0.15)"><i class="bi bi-download" style="color:#10b981"></i></div>
+            <span style="font-size:0.78rem;color:var(--text);font-weight:500">Download Notes</span>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="/doubts" class="quick-action text-decoration-none">
+            <div class="quick-action-icon" style="background:rgba(59,130,246,0.15)"><i class="bi bi-question-circle" style="color:#3b82f6"></i></div>
+            <span style="font-size:0.78rem;color:var(--text);font-weight:500">Ask Doubt</span>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="/attendance" class="quick-action text-decoration-none">
+            <div class="quick-action-icon" style="background:rgba(139,92,246,0.15)"><i class="bi bi-calendar-check" style="color:#8b5cf6"></i></div>
+            <span style="font-size:0.78rem;color:var(--text);font-weight:500">Attendance</span>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="/analytics" class="quick-action text-decoration-none">
+            <div class="quick-action-icon" style="background:rgba(244,63,94,0.15)"><i class="bi bi-bar-chart" style="color:#f43f5e"></i></div>
+            <span style="font-size:0.78rem;color:var(--text);font-weight:500">Analytics</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance Chart -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-calendar-check text-success me-2"></i>Attendance</h5>
+      <div class="chart-container">
+        <canvas id="attendanceChart"></canvas>
+      </div>
+      <div class="mt-3">
+        <div class="progress-saifs">
+          <div class="progress-bar-saifs" style="width:{{ attendance_pct }}%;{% if attendance_pct < 75 %}background:linear-gradient(90deg,#ef4444,#f97316){% endif %}"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-1" style="font-size:0.75rem;color:var(--text-muted)">
+          <span>{{ attendance_pct }}% attendance</span>
+          <span>{% if attendance_pct >= 75 %}✅ Good{% else %}⚠️ Low{% endif %}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="fw-700 mb-0" style="color:var(--text)"><i class="bi bi-bell text-info me-2"></i>Notifications</h5>
+        <a href="/notifications" style="font-size:0.8rem;color:var(--primary)">View All</a>
+      </div>
+      {% if notifications %}
+        {% for n in notifications %}
+        <div class="notif-item {% if not n['is_read'] %}unread{% endif %}">
+          <div class="notif-icon {{ n['type'] }}">
+            {% if n['type'] == 'success' %}<i class="bi bi-check-circle-fill"></i>
+            {% elif n['type'] == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+            {% elif n['type'] == 'danger' %}<i class="bi bi-x-circle-fill"></i>
+            {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+          </div>
+          <div>
+            <p style="font-size:0.8rem;margin:0;color:var(--text)">{{ n['message'] }}</p>
+            <span style="font-size:0.7rem;color:var(--text-muted)">{{ n['created_at'] }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4" style="color:var(--text-muted)">
+          <i class="bi bi-bell-slash" style="font-size:2rem"></i>
+          <p class="mt-2" style="font-size:0.85rem">No notifications yet</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Upcoming Events -->
+  <div class="col-12 col-lg-6">
+    <div class="glass-card p-4">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-calendar-event text-primary me-2"></i>Upcoming Events</h5>
+      {% if events %}
+        {% for ev in events %}
+        <div class="d-flex gap-3 mb-3 pb-3" style="border-bottom:1px solid var(--border)">
+          <div style="min-width:44px;height:44px;background:rgba(99,102,241,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:var(--primary);text-align:center;line-height:1.2">
+            {{ ev['event_date'][-5:] if ev['event_date'] else '—' }}
+          </div>
+          <div>
+            <p style="font-weight:600;font-size:0.85rem;margin:0;color:var(--text)">{{ ev['title'] }}</p>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin:0">{{ ev['description'] }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-3" style="color:var(--text-muted);font-size:0.85rem">
+          <i class="bi bi-calendar-x" style="font-size:2rem"></i><p class="mt-2">No upcoming events</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Feedback -->
+  <div class="col-12 col-lg-6">
+    <div class="glass-card p-4">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="fw-700 mb-0" style="color:var(--text)"><i class="bi bi-star text-warning me-2"></i>Recent Feedback</h5>
+        <a href="/feedback" style="font-size:0.8rem;color:var(--primary)">Submit New</a>
+      </div>
+      {% if recent_feedback %}
+        {% for fb in recent_feedback %}
+        <div class="p-3 rounded-3 mb-2" style="background:var(--glass);border:1px solid var(--border)">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p style="font-weight:600;font-size:0.85rem;margin:0;color:var(--text)">{{ fb['teacher_name'] }}</p>
+              <p style="font-size:0.75rem;color:var(--text-muted);margin:0">{{ fb['subject'] }}</p>
+            </div>
+            <div style="color:#f59e0b;font-size:0.85rem">{{ '★' * fb['rating'] }}{{ '☆' * (5 - fb['rating']) }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-3" style="color:var(--text-muted);font-size:0.85rem">
+          <i class="bi bi-star" style="font-size:2rem"></i><p class="mt-2">No feedback submitted yet</p>
+          <a href="/feedback" class="btn-saifs btn-primary-saifs" style="font-size:0.8rem">Submit Feedback</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+renderAttendanceChart('attendanceChart', {{ attendance_present }}, {{ attendance_total - attendance_present }}, 0);
+</script>
+{% endblock %}

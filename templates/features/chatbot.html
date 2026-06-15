@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Chatbot — INVERTIS SAIFS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">INVERTIS SAIFS Assistant</h1>
+  <p class="page-subtitle">Your AI-powered college chatbot 🤖</p>
+</div>
+<div class="glass-card p-4" style="max-width:600px;margin:0 auto">
+  <p style="color:var(--text-muted);font-size:0.9rem">Use the floating chatbot widget in the bottom-right corner to interact with your INVERTIS SAIFS assistant anytime, anywhere!</p>
+  <div class="mt-3">
+    <h6 style="color:var(--text);margin-bottom:1rem">Try asking about:</h6>
+    <div class="d-flex flex-wrap gap-2">
+      {% for q in ['feedback','notes','complaint','attendance','doubts','events','login','help'] %}
+      <span onclick="document.getElementById('chatbot-input').value='{{ q }}'; document.getElementById('chatbot-box').classList.add('open');" style="padding:0.4rem 0.85rem;border-radius:20px;background:rgba(99,102,241,0.1);color:var(--primary);font-size:0.82rem;cursor:pointer;border:1px solid rgba(99,102,241,0.2)">{{ q }}</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Doubts — SAIFS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="/">Home</a> <i class="bi bi-chevron-right" style="font-size:0.65rem"></i> Doubts</div>
+  <h1 class="page-title">Doubt Portal</h1>
+  <p class="page-subtitle">Ask questions and get answers from teachers 🎓</p>
+</div>
+
+<!-- Ask Doubt Form -->
+{% if view != 'teacher' %}
+<div class="glass-card p-4 mb-4 fade-in-up">
+  <h5 class="fw-700 mb-4" style="color:var(--text)"><i class="bi bi-question-circle text-primary me-2"></i>Ask a Doubt</h5>
+  <form method="POST" class="form-saifs">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Subject</label>
+        <input type="text" name="subject" class="form-control" placeholder="e.g., Mathematics" required>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Your Question</label>
+        <input type="text" name="question" class="form-control" placeholder="Type your question clearly..." required>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn-saifs btn-primary-saifs"><i class="bi bi-send"></i> Submit Doubt</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+<!-- Filter Bar -->
+<div class="glass-card p-3 mb-4">
+  <form method="GET" class="d-flex gap-3 align-items-end flex-wrap">
+    <div style="flex:1;min-width:150px">
+      <input type="text" name="search" class="form-control form-saifs" placeholder="Search doubts..." value="{{ search }}">
+    </div>
+    <select name="subject" class="form-select form-saifs" style="min-width:140px">
+      <option value="">All Subjects</option>
+      {% for s in subjects %}<option {% if filter==s['subject'] %}selected{% endif %}>{{ s['subject'] }}</option>{% endfor %}
+    </select>
+    <select name="status" class="form-select form-saifs" style="min-width:120px">
+      <option value="">All Status</option>
+      <option {% if status_filter=='Open' %}selected{% endif %}>Open</option>
+      <option {% if status_filter=='Answered' %}selected{% endif %}>Answered</option>
+    </select>
+    <button type="submit" class="btn-saifs btn-primary-saifs"><i class="bi bi-funnel"></i> Filter</button>
+    {% if filter or search or status_filter %}
+    <a href="/doubts" class="btn-saifs btn-outline-saifs"><i class="bi bi-x"></i> Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Doubts List -->
+<div class="glass-card p-4">
+  <h5 class="fw-700 mb-3" style="color:var(--text)">
+    <i class="bi bi-chat-dots me-2"></i>Doubts ({{ doubts|length }})
+  </h5>
+  {% if doubts %}
+    {% for d in doubts %}
+    <div class="p-4 rounded-3 mb-3" style="background:var(--glass);border:1px solid var(--border)">
+      <!-- Question -->
+      <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+        <div style="flex:1">
+          <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+            <span class="badge-saifs badge-{{ d['status']|lower }}">{{ d['status'] }}</span>
+            <span class="badge-saifs" style="background:rgba(99,102,241,0.1);color:var(--primary)">{{ d['subject'] }}</span>
+            {% if d['student_name'] %}
+            <span style="font-size:0.75rem;color:var(--text-muted)">by {{ d['student_name'] }}</span>
+            {% endif %}
+          </div>
+          <p style="font-weight:600;font-size:0.9rem;color:var(--text);margin:0">
+            <i class="bi bi-question-circle text-warning me-2"></i>{{ d['question'] }}
+          </p>
+          <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.25rem">{{ d['asked_at'][:10] if d['asked_at'] else '' }}</p>
+        </div>
+      </div>
+
+      <!-- Answer (if exists) -->
+      {% if d['answer'] %}
+      <div class="mt-3 p-3 rounded-3" style="background:rgba(16,185,129,0.07);border-left:3px solid var(--success)">
+        <p style="font-size:0.8rem;font-weight:600;color:var(--success);margin:0 0 0.25rem">
+          <i class="bi bi-check-circle me-1"></i>Answer {% if d['teacher_name'] %}by {{ d['teacher_name'] }}{% endif %}
+        </p>
+        <p style="font-size:0.85rem;color:var(--text);margin:0">{{ d['answer'] }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Answer form (teacher/admin) -->
+      {% if (view == 'teacher' or current_user_role == 'admin') and d['status'] == 'Open' %}
+      <div class="mt-3 pt-3" style="border-top:1px solid var(--border)">
+        <form method="POST" action="/doubts/answer/{{ d['id'] }}" class="form-saifs d-flex gap-2 flex-wrap">
+          <input type="text" name="answer" class="form-control" placeholder="Type your answer..." required style="flex:1;min-width:200px">
+          <button type="submit" class="btn-saifs btn-success-saifs"><i class="bi bi-reply"></i> Answer</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="text-center py-5" style="color:var(--text-muted)">
+      <i class="bi bi-chat-right-question" style="font-size:3rem;opacity:0.4"></i>
+      <p class="mt-3" style="font-size:0.9rem">No doubts found. Ask your first question above!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

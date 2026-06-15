@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — INVERTIS SAIFS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="/">Home</a> <i class="bi bi-chevron-right" style="font-size:0.65rem"></i> Dashboard</div>
+  <h1 class="page-title">Admin Dashboard</h1>
+  <p class="page-subtitle">System overview and management panel 🛡️</p>
+</div>
+
+<!-- System Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3 fade-in-up-1">
+    <div class="glass-card stat-card primary">
+      <div class="stat-icon primary"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-value" data-target="{{ total_users }}">{{ total_users }}</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 fade-in-up-2">
+    <div class="glass-card stat-card success">
+      <div class="stat-icon success"><i class="bi bi-mortarboard-fill"></i></div>
+      <div class="stat-value" data-target="{{ total_students }}">{{ total_students }}</div>
+      <div class="stat-label">Students</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 fade-in-up-3">
+    <div class="glass-card stat-card info">
+      <div class="stat-icon info"><i class="bi bi-person-workspace"></i></div>
+      <div class="stat-value" data-target="{{ total_teachers }}">{{ total_teachers }}</div>
+      <div class="stat-label">Teachers</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 fade-in-up-4">
+    <div class="glass-card stat-card warning">
+      <div class="stat-icon warning"><i class="bi bi-people"></i></div>
+      <div class="stat-value" data-target="{{ total_parents }}">{{ total_parents }}</div>
+      <div class="stat-label">Parents</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="glass-card p-3 text-center">
+      <div style="font-size:1.75rem;font-weight:800;color:var(--primary)">{{ total_feedback }}</div>
+      <div style="font-size:0.8rem;color:var(--text-muted)">Total Feedback</div>
+      <div style="font-size:0.75rem;color:var(--warning)">⭐ {{ avg_rating }}/5 avg</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="glass-card p-3 text-center">
+      <div style="font-size:1.75rem;font-weight:800;color:var(--warning)">{{ total_complaints }}</div>
+      <div style="font-size:0.8rem;color:var(--text-muted)">Complaints</div>
+      <div style="font-size:0.75rem;color:var(--danger)">⏳ {{ pending_complaints }} pending</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="glass-card p-3 text-center">
+      <div style="font-size:1.75rem;font-weight:800;color:var(--success)">{{ total_notes }}</div>
+      <div style="font-size:0.8rem;color:var(--text-muted)">Notes Uploaded</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="glass-card p-3 text-center">
+      <div style="font-size:1.75rem;font-weight:800;color:var(--secondary)">{{ total_doubts }}</div>
+      <div style="font-size:0.8rem;color:var(--text-muted)">Total Doubts</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Rating Doughnut -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-star text-warning me-2"></i>Rating Distribution</h5>
+      <div class="chart-container">
+        <canvas id="ratingChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complaint Pie -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-pie-chart text-danger me-2"></i>Complaint Status</h5>
+      <div class="chart-container">
+        <canvas id="complaintChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Distribution -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-bar-chart text-info me-2"></i>User Distribution</h5>
+      <div class="chart-container">
+        <canvas id="userChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Management Panel -->
+<div class="glass-card p-4 mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="fw-700 mb-0" style="color:var(--text)"><i class="bi bi-people text-primary me-2"></i>User Management</h5>
+    <a href="/signup" class="btn-saifs btn-primary-saifs" style="font-size:0.8rem"><i class="bi bi-person-plus"></i> Add User</a>
+  </div>
+  <div class="table-responsive">
+    <table class="saifs-table">
+      <thead>
+        <tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Department</th><th>Joined</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for u in all_users %}
+        <tr>
+          <td style="color:var(--text-muted)">{{ u['id'] }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;flex-shrink:0">{{ u['name'][0].upper() }}</div>
+              {{ u['name'] }}
+            </div>
+          </td>
+          <td style="color:var(--text-muted);font-size:0.82rem">{{ u['email'] }}</td>
+          <td>
+            <span class="badge-saifs {% if u['role']=='admin' %}badge-critical{% elif u['role']=='teacher' %}badge-review{% elif u['role']=='student' %}badge-present{% else %}badge-answered{% endif %}">
+              {{ u['role'].title() }}
+            </span>
+          </td>
+          <td style="font-size:0.82rem">{{ u['department'] or '—' }}</td>
+          <td style="color:var(--text-muted);font-size:0.8rem">{{ u['created_at'][:10] if u['created_at'] else '—' }}</td>
+          <td>
+            {% if u['id'] != current_user_id %}
+            <form method="POST" action="/admin/users/delete/{{ u['id'] }}" onsubmit="return confirm('Delete {{ u['name'] }}?')">
+              <button class="btn-saifs btn-danger-saifs" style="font-size:0.75rem;padding:0.3rem 0.65rem"><i class="bi bi-trash"></i></button>
+            </form>
+            {% else %}
+            <span style="font-size:0.75rem;color:var(--text-muted)">You</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Complaint Categories -->
+{% if cat_dist %}
+<div class="glass-card p-4">
+  <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Complaints by Category</h5>
+  <div class="row g-2">
+    {% for row in cat_dist %}
+    <div class="col-6 col-md-3">
+      <div class="p-3 rounded-3 text-center" style="background:var(--glass);border:1px solid var(--border)">
+        <div style="font-size:1.5rem;font-weight:800;color:var(--warning)">{{ row['cnt'] }}</div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">{{ row['category'] }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+renderRatingChart('ratingChart', {{ rating_data | tojson }});
+renderComplaintChart('complaintChart', {{ {'Pending': pending_complaints, 'Resolved': resolved_complaints} | tojson }});
+renderUserChart('userChart', {{ total_students }}, {{ total_teachers }}, {{ total_parents }});
+</script>
+{% endblock %}

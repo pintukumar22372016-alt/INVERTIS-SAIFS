@@ -1,0 +1,27 @@
+.form-container{
+    max-width:700px;
+    margin:auto;
+}
+
+.form-card{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-card h2{
+    margin-bottom:20px;
+}
+
+.form-control{
+    margin-bottom:15px;
+}
+
+textarea{
+    resize:none;
+}
+
+.submit-btn{
+    width:100%;
+}

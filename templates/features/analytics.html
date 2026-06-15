@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Analytics — INVERTIS SAIFS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="/">Home</a> <i class="bi bi-chevron-right" style="font-size:0.65rem"></i> Analytics</div>
+  <h1 class="page-title">Analytics Dashboard</h1>
+  <p class="page-subtitle">Comprehensive system metrics and performance insights 📊</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3 fade-in-up-1"><div class="glass-card p-3 text-center">
+    <div style="font-size:1.75rem;font-weight:800;color:var(--primary)" data-target="{{ total_users }}">{{ total_users }}</div>
+    <div style="font-size:0.8rem;color:var(--text-muted)">Total Users</div>
+  </div></div>
+  <div class="col-6 col-md-3 fade-in-up-2"><div class="glass-card p-3 text-center">
+    <div style="font-size:1.75rem;font-weight:800;color:var(--warning)">{{ avg_rating }}</div>
+    <div style="font-size:0.8rem;color:var(--text-muted)">Avg. Rating ⭐</div>
+  </div></div>
+  <div class="col-6 col-md-3 fade-in-up-3"><div class="glass-card p-3 text-center">
+    <div style="font-size:1.75rem;font-weight:800;color:var(--success)">{{ total_feedback }}</div>
+    <div style="font-size:0.8rem;color:var(--text-muted)">Total Feedback</div>
+  </div></div>
+  <div class="col-6 col-md-3 fade-in-up-4"><div class="glass-card p-3 text-center">
+    <div style="font-size:1.75rem;font-weight:800;color:var(--danger)">{{ total_complaints }}</div>
+    <div style="font-size:0.8rem;color:var(--text-muted)">Total Complaints</div>
+  </div></div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Feedback Trend -->
+  <div class="col-12 col-lg-8">
+    <div class="glass-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-700 mb-0" style="color:var(--text)"><i class="bi bi-graph-up text-primary me-2"></i>Monthly Feedback Trend</h5>
+        <button onclick="window.print()" class="btn-saifs btn-outline-saifs" style="font-size:0.8rem"><i class="bi bi-printer"></i> Export</button>
+      </div>
+      <div class="chart-container-lg">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Rating Distribution -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-star text-warning me-2"></i>Rating Distribution</h5>
+      <div class="chart-container">
+        <canvas id="ratingChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Complaint Status -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-pie-chart text-danger me-2"></i>Complaint Status</h5>
+      <div class="chart-container">
+        <canvas id="complaintChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Attendance Overview -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-calendar-check text-success me-2"></i>Attendance Overview</h5>
+      <div class="chart-container">
+        <canvas id="attendanceChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- User Distribution -->
+  <div class="col-12 col-lg-4">
+    <div class="glass-card p-4 h-100">
+      <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-people text-info me-2"></i>User Distribution</h5>
+      <div class="chart-container">
+        <canvas id="userChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Teacher Performance -->
+{% if teacher_feedback %}
+<div class="glass-card p-4">
+  <h5 class="fw-700 mb-3" style="color:var(--text)"><i class="bi bi-person-workspace text-warning me-2"></i>Teacher Performance</h5>
+  <div class="table-responsive">
+    <table class="saifs-table">
+      <thead><tr><th>Teacher</th><th>Avg Rating</th><th>Feedback Count</th><th>Performance</th></tr></thead>
+      <tbody>
+        {% for t in teacher_feedback %}
+        <tr>
+          <td><strong>{{ t['teacher_name'] }}</strong></td>
+          <td style="color:#f59e0b;font-size:1rem">{{ '★' * (t['avg_rating']|int) }}<span style="color:var(--text-muted)">{{ '☆' * (5 - t['avg_rating']|int) }}</span> <span style="font-size:0.8rem;color:var(--text)">{{ t['avg_rating'] }}</span></td>
+          <td>{{ t['cnt'] }} reviews</td>
+          <td style="min-width:120px">
+            <div class="progress-saifs">
+              <div class="progress-bar-saifs" style="width:{{ (t['avg_rating']/5*100)|int }}%;{% if t['avg_rating'] < 3 %}background:linear-gradient(90deg,#ef4444,#f97316){% elif t['avg_rating'] < 4 %}background:linear-gradient(90deg,#f59e0b,#eab308){% endif %}"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const monthlyData = {{ monthly_feedback | tojson }};
+renderTrendChart('trendChart', monthlyData.labels, monthlyData.data);
+renderRatingChart('ratingChart', {{ rating_dist | tojson }});
+renderComplaintChart('complaintChart', {{ complaint_status | tojson }});
+renderAttendanceChart('attendanceChart', {{ att_present }}, {{ att_absent }}, {{ att_late }});
+renderUserChart('userChart', {{ total_students }}, {{ total_teachers }}, {{ total_parents }});
+</script>
+{% endblock %}

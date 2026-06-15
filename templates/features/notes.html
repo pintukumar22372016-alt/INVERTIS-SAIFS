@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Notes — SAIFS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="breadcrumb"><a href="/">Home</a> <i class="bi bi-chevron-right" style="font-size:0.65rem"></i> Notes</div>
+  <h1 class="page-title">Study Notes</h1>
+  <p class="page-subtitle">Upload and download academic study materials 📚</p>
+</div>
+
+<!-- Upload Form -->
+{% if current_user_role in ['teacher','admin'] %}
+<div class="glass-card p-4 mb-4 fade-in-up">
+  <h5 class="fw-700 mb-4" style="color:var(--text)"><i class="bi bi-cloud-upload text-primary me-2"></i>Upload Notes</h5>
+  <form method="POST" enctype="multipart/form-data" class="form-saifs">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Subject</label>
+        <input type="text" name="subject" class="form-control" placeholder="e.g., Data Structures" required>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Description (optional)</label>
+        <input type="text" name="description" class="form-control" placeholder="Brief description of the notes">
+      </div>
+      <div class="col-12">
+        <label class="form-label">File</label>
+        <div class="upload-zone" id="upload-zone">
+          <div class="upload-icon">📁</div>
+          <p style="color:var(--text);font-weight:600;margin:0 0 0.25rem">Drop file here or click to browse</p>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin:0">Supported: PDF, DOC, DOCX, PPT, PPTX, TXT, ZIP (max 16MB)</p>
+          <p id="file-name-display" style="margin-top:0.75rem;color:var(--primary);font-size:0.85rem;font-weight:600"></p>
+          <input type="file" name="notes" id="file-input" style="display:none" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip">
+        </div>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn-saifs btn-primary-saifs"><i class="bi bi-upload"></i> Upload Notes</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+<!-- Search & Filter -->
+<div class="glass-card p-3 mb-4">
+  <form method="GET" class="d-flex gap-3 align-items-end flex-wrap">
+    <div style="flex:1;min-width:200px">
+      <label class="form-label form-saifs" style="margin-bottom:0.4rem;font-size:0.82rem;color:var(--text-muted)">Search</label>
+      <input type="text" name="search" class="form-control form-saifs" placeholder="Search notes..." value="{{ search }}">
+    </div>
+    <div style="min-width:160px">
+      <label class="form-label form-saifs" style="margin-bottom:0.4rem;font-size:0.82rem;color:var(--text-muted)">Subject</label>
+      <select name="subject" class="form-select form-saifs">
+        <option value="">All Subjects</option>
+        {% for s in subjects %}
+        <option {% if filter==s['subject'] %}selected{% endif %}>{{ s['subject'] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-saifs btn-primary-saifs" style="height:42px">
+      <i class="bi bi-search"></i> Filter
+    </button>
+    {% if filter or search %}
+    <a href="/notes" class="btn-saifs btn-outline-saifs" style="height:42px"><i class="bi bi-x"></i> Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Notes Grid -->
+{% if notes %}
+<div class="row g-3">
+  {% for note in notes %}
+  <div class="col-12 col-md-6 col-lg-4 fade-in-up">
+    <div class="glass-card p-4 h-100">
+      <div class="d-flex align-items-start gap-3">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.4rem">
+          {% if note['file_name'].endswith('.pdf') %}📄
+          {% elif note['file_name'].endswith(('.ppt','.pptx')) %}📊
+          {% elif note['file_name'].endswith(('.doc','.docx')) %}📝
+          {% else %}📁{% endif %}
+        </div>
+        <div style="flex:1;min-width:0">
+          <span class="badge-saifs" style="background:rgba(99,102,241,0.1);color:var(--primary);margin-bottom:0.4rem;display:inline-block">{{ note['subject'] }}</span>
+          <p style="font-weight:600;font-size:0.85rem;margin:0 0 0.25rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ note['file_name'] }}</p>
+          {% if note['description'] %}
+          <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 0.25rem">{{ note['description'] }}</p>
+          {% endif %}
+          <p style="font-size:0.72rem;color:var(--text-muted);margin:0">
+            {% if note['uploader'] %}by {{ note['uploader'] }} · {% endif %}
+            {{ note['uploaded_at'][:10] if note['uploaded_at'] else '' }}
+          </p>
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        <a href="/notes/download/{{ note['file_name'] }}" class="btn-saifs btn-success-saifs" style="flex:1;justify-content:center;font-size:0.82rem">
+          <i class="bi bi-download"></i> Download
+        </a>
+        {% if current_user_role in ['teacher','admin'] %}
+        <form method="POST" action="/notes/delete/{{ note['id'] }}" onsubmit="return confirm('Delete this note?')">
+          <button class="btn-saifs btn-danger-saifs" style="font-size:0.82rem"><i class="bi bi-trash"></i></button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+  <div class="glass-card p-5 text-center" style="color:var(--text-muted)">
+    <i class="bi bi-file-earmark-x" style="font-size:3rem;opacity:0.4"></i>
+    <p class="mt-3" style="font-size:0.9rem">No notes found{% if search or filter %} matching your search{% endif %}.</p>
+    {% if current_user_role in ['teacher','admin'] %}
+    <p style="font-size:0.85rem">Upload the first note using the form above!</p>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

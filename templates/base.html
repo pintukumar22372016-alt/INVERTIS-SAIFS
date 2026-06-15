@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Invertis SAIFS — Smart Academic Interaction & Feedback System{% endblock %}</title>
+<meta name="description" content="{% block meta_desc %}SInvertis SAIFS — Modern College ERP Portal for students, teachers, parents and administrators.{% endblock %}">
+
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- SAIFS CSS -->
+<link href="{{ url_for('static', filename='css/saifs.css') }}" rel="stylesheet">
+
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────── -->
+<nav class="saifs-navbar">
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <div class="navbar-search ms-3">
+    <input type="text" placeholder="Search features, notes, doubts..." id="global-search" autocomplete="off">
+  </div>
+
+  <div class="navbar-actions">
+    <!-- Dark/Light Toggle -->
+    <button class="nav-icon-btn" onclick="toggleTheme()" id="theme-toggle" title="Toggle Theme">☀️</button>
+
+    <!-- Notifications -->
+    <div class="saifs-dropdown">
+      <a href="/notifications" class="nav-icon-btn" title="Notifications">
+        <i class="bi bi-bell"></i>
+        {% if unread_notifications > 0 %}
+        <span class="notif-badge">{{ unread_notifications }}</span>
+        {% endif %}
+      </a>
+    </div>
+
+    <!-- User Profile -->
+    {% if current_user_id %}
+    <div class="saifs-dropdown">
+      <div class="user-pill" onclick="toggleDropdown('user-menu')">
+        <div class="user-avatar">{{ (current_user_name or 'U')[0].upper() }}</div>
+        <span class="d-none d-md-inline" style="font-size:0.85rem;font-weight:600">{{ current_user_name }}</span>
+        <i class="bi bi-chevron-down" style="font-size:0.7rem;color:var(--text-muted)"></i>
+      </div>
+      <div class="saifs-dropdown-menu" id="user-menu">
+        <div class="px-3 py-2 border-bottom" style="border-color:var(--border)!important">
+          <div style="font-weight:600;font-size:0.85rem">{{ current_user_name }}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);text-transform:capitalize">{{ current_user_role }}</div>
+        </div>
+        <a href="/{{ current_user_role }}/dashboard" class="dropdown-item-saifs">
+          <i class="bi bi-house"></i> Dashboard
+        </a>
+        <div class="dropdown-divider-saifs"></div>
+        <a href="/logout" class="dropdown-item-saifs" style="color:var(--danger)">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <a href="/login" class="btn-saifs btn-primary-saifs">Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- ── Sidebar Overlay (mobile) ────────────────────────── -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ── Sidebar ──────────────────────────────────────────── -->
+{% if current_user_id %}
+<aside class="saifs-sidebar" id="saifs-sidebar">
+  <div class="sidebar-user">
+    <div class="sidebar-user-avatar">{{ (current_user_name or 'U')[0].upper() }}</div>
+    <div>
+      <div class="sidebar-user-name">{{ current_user_name }}</div>
+      <div class="sidebar-user-role">{{ current_user_role }}</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-title">Main</div>
+    <a href="/{{ current_user_role }}/dashboard" class="sidebar-link">
+      <span class="link-icon"><i class="bi bi-house-door"></i></span> Dashboard
+    </a>
+
+    {% if current_user_role == 'student' %}
+    <div class="sidebar-section-title">Academics</div>
+    <a href="/feedback" class="sidebar-link"><span class="link-icon"><i class="bi bi-star"></i></span> Feedback</a>
+    <a href="/complaint" class="sidebar-link"><span class="link-icon"><i class="bi bi-exclamation-circle"></i></span> Complaints</a>
+    <a href="/notes" class="sidebar-link"><span class="link-icon"><i class="bi bi-file-earmark-text"></i></span> Notes</a>
+    <a href="/doubts" class="sidebar-link"><span class="link-icon"><i class="bi bi-question-circle"></i></span> Doubts</a>
+    <a href="/attendance" class="sidebar-link"><span class="link-icon"><i class="bi bi-calendar-check"></i></span> Attendance</a>
+    {% endif %}
+
+    {% if current_user_role == 'teacher' %}
+    <div class="sidebar-section-title">Teaching</div>
+    <a href="/teacher/notes" class="sidebar-link"><span class="link-icon"><i class="bi bi-cloud-upload"></i></span> Upload Notes</a>
+    <a href="/teacher/doubts" class="sidebar-link"><span class="link-icon"><i class="bi bi-question-circle"></i></span> Student Doubts</a>
+    <a href="/attendance" class="sidebar-link"><span class="link-icon"><i class="bi bi-calendar-check"></i></span> Attendance</a>
+    <a href="/analytics" class="sidebar-link"><span class="link-icon"><i class="bi bi-bar-chart"></i></span> Analytics</a>
+    {% endif %}
+
+    {% if current_user_role == 'admin' %}
+    <div class="sidebar-section-title">Management</div>
+    <a href="/admin/complaints" class="sidebar-link"><span class="link-icon"><i class="bi bi-exclamation-triangle"></i></span> Complaints</a>
+    <a href="/analytics" class="sidebar-link"><span class="link-icon"><i class="bi bi-graph-up"></i></span> Analytics</a>
+    <a href="/notes" class="sidebar-link"><span class="link-icon"><i class="bi bi-file-earmark-text"></i></span> Notes</a>
+    <a href="/attendance" class="sidebar-link"><span class="link-icon"><i class="bi bi-calendar-check"></i></span> Attendance</a>
+    {% endif %}
+
+    {% if current_user_role == 'parent' %}
+    <div class="sidebar-section-title">Overview</div>
+    <a href="/parent/student-progress" class="sidebar-link"><span class="link-icon"><i class="bi bi-calendar-check"></i></span> Attendance</a>
+    <a href="/parent/feedback" class="sidebar-link"><span class="link-icon"><i class="bi bi-star"></i></span> Feedback Reports</a>
+    {% endif %}
+
+    <div class="sidebar-section-title">General</div>
+    <a href="/notifications" class="sidebar-link">
+      <span class="link-icon"><i class="bi bi-bell"></i></span> Notifications
+      {% if unread_notifications > 0 %}<span class="ms-auto badge-saifs badge-open" style="font-size:0.65rem">{{ unread_notifications }}</span>{% endif %}
+    </a>
+    <a href="/chatbot" class="sidebar-link"><span class="link-icon"><i class="bi bi-robot"></i></span> Chatbot</a>
+
+    <div class="sidebar-section-title mt-2">Account</div>
+    <a href="/logout" class="sidebar-link" style="color:#f87171">
+      <span class="link-icon"><i class="bi bi-box-arrow-right"></i></span> Logout
+    </a>
+  </nav>
+</aside>
+{% endif %}
+
+<!-- ── Main Content ─────────────────────────────────────── -->
+<main class="saifs-main {% if not current_user_id %}ms-0{% endif %}">
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div style="margin-bottom:1rem">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show d-flex align-items-center gap-2"
+             role="alert" style="border-radius:12px;background:var(--bg-card);border:1px solid var(--border);color:var(--text)">
+          {% if category == 'success' %}✅{% elif category == 'danger' %}❌{% elif category == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+          {{ message }}
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" style="filter:invert(1)"></button>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── Chatbot Widget ───────────────────────────────────── -->
+<div id="chatbot-widget">
+  <button id="chatbot-toggle" title="INVERTIS SAIFS Assistant">
+    <i class="bi bi-robot"></i>
+  </button>
+  <div id="chatbot-box">
+    <div class="chatbot-header">
+      <div class="chatbot-status"></div>
+      <div>
+        <h6>INVERTIS SAIFS Assistant</h6>
+        <p>Ask me anything about INVERTIS SAIFS!</p>
+      </div>
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages"></div>
+    <div class="chatbot-input">
+      <input type="text" id="chatbot-input" placeholder="Type a message...">
+      <button id="chatbot-send"><i class="bi bi-send-fill"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Container ──────────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/saifs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

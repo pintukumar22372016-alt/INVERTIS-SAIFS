@@ -1,0 +1,94 @@
+{% include 'navbar.html' %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h3>Study Notes</h3>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST"
+                  enctype="multipart/form-data">
+
+                <div class="mb-3">
+                    <label>Subject</label>
+
+                    <input type="text"
+                           name="subject"
+                           class="form-control"
+                           placeholder="Enter Subject Name">
+                </div>
+
+                <div class="mb-3">
+                    <label>Upload Notes</label>
+
+                    <input type="file"
+                           name="notes"
+                           class="form-control">
+                </div>
+
+                <button type="submit"
+                        class="btn btn-success">
+
+                    Upload Notes
+
+                </button>
+
+            </form>
+
+            <hr>
+
+            <h4>Available Notes</h4>
+
+            <table class="table table-bordered">
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject</th>
+                        <th>File</th>
+                        <th>Download</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for note in notes %}
+
+                    <tr>
+
+                        <td>{{ note.id }}</td>
+                        <td>{{ note.subject }}</td>
+                        <td>{{ note.file_name }}</td>
+
+                        <td>
+
+                            <a href="/download/{{note.id}}"
+                               class="btn btn-primary btn-sm">
+
+                                Download
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% include 'footer.html' %}
